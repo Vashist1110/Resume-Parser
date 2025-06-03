@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Parsed Resume Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <h2>Parsed Resume Information</h2>
+
+  <ul>
+    <li><strong>Name:</strong> {{ data.name }}</li>
+    <li><strong>Email:</strong> {{ data.email }}</li>
+    <li><strong>Phone:</strong> {{ data.phone }}</li>
+    <li><strong>Skills:</strong> {{ data.skills | join(', ') }}</li>
+    {% if data.match_percentage is defined %}
+    <li><strong>Match with Job Description:</strong> {{ data.match_percentage }}%</li>
+    {% endif %}
+  </ul>
+
+  <h3>Links</h3>
+  {% if data.links %}
+  <ul>
+    {% for link in data.links %}
+      <li><a href="{{ link }}" target="_blank">{{ link }}</a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>No links found in the resume.</p>
+  {% endif %}
+
+  <br>
+  <a href="/download">
+    <button>📥 Download All Parsed Data (Excel)</button>
+  </a>
+
+  <br><br>
+  <a href="/">
+    <button>🔁 Parse Another Resume</button>
+  </a>
+</body>
+</html>

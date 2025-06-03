@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resume Parser</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <h2>Upload Resume (PDF only)</h2>
+  <form method="POST" enctype="multipart/form-data">
+    <input type="file" name="resume" accept=".pdf" required>
+    <br>
+    <textarea name="job_desc" placeholder="Paste Job Description (optional)" rows="5" cols="50"></textarea>
+    <br>
+    <button type="submit">Parse Resume</button>
+  </form>
+</body>
+</html>
