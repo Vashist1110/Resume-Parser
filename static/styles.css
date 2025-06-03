@@ -64,3 +64,11 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+img {
+  max-width: 90%;
+  height: auto;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  margin: 20px auto;
+}

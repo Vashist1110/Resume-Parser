@@ -3,6 +3,7 @@ import re
 import spacy
 import os
 from openpyxl import Workbook, load_workbook
+import PyPDF2
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -81,14 +82,27 @@ def calculate_match_percentage(resume_skills, job_desc):
 
     return round((match_count / len(resume_skills)) * 100, 2) if resume_skills else 0
 
-def extract_links(text):
-    import re
-    # Match all http/https links
-    links = re.findall(r'https?://[^\s\)\]\}\'\"<]+', text)
-    return links
+# def extract_links(text):
+#     # Match all http/https links
+#     links = re.findall(r'https?://[^\s\)\]\}\'\"<]+', text)
+#     return links
+
+def extract_links(pdf_path):
+        links = []
+        with open(pdf_path, 'rb') as pdf_file:
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            for page_num in range(len(pdf_reader.pages)):
+                page = pdf_reader.pages[page_num]
+                if '/Annots' in page:
+                    for annot in page['/Annots']:
+                        annot_obj = annot.get_object()
+                        if '/A' in annot_obj and '/URI' in annot_obj['/A']:
+                            url = annot_obj['/A']['/URI']
+                            links.append(url)
+        return links
 
 def save_to_excel(data, file_path="data/parsed_data.xlsx"):
-    headers = ["Name", "Email", "Phone", "Skills", "Match %"]
+    headers = ["Name", "Email", "Phone", "Skills", "Links", "Match %"]
 
     # Create new workbook if file doesn't exist
     if not os.path.exists(file_path):
@@ -100,11 +114,14 @@ def save_to_excel(data, file_path="data/parsed_data.xlsx"):
         ws = wb.active
 
     # Append new row
+    links = ', '.join(data.get("links", []))
+    skills = ', '.join(data.get("skills", []))
     ws.append([
         data.get("name", ""),
         data.get("email", ""),
         data.get("phone", ""),
-        ', '.join(data.get("skills", [])),
+        skills,
+        links,
         data.get("match_percentage", "") if "match_percentage" in data else ""
     ])
 
@@ -113,12 +130,13 @@ def save_to_excel(data, file_path="data/parsed_data.xlsx"):
 # Final combined function
 def parse_resume(file_path, job_desc=None):
     text = extract_text_from_pdf(file_path)
+ 
 
     skills = extract_skills(text)
     name = extract_name(text)
     email = extract_email(text)
     phone = extract_phone(text)
-    links = extract_links(text)
+    links = extract_links(file_path)
 
     result = {
         "name": name,
